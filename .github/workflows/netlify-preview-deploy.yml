@@ -1,0 +1,40 @@
+name: Netlify Preview Deploy
+
+on:
+  workflow_call:
+    inputs:
+      build_directory:
+        required: true
+        type: string
+      build_command:
+        required: false
+        type: string
+        default: 'npm run build'
+    secrets:
+      repoToken:
+        required: true
+      netlifyAuthToken:
+        required: true
+      netlifySiteId:
+        required: true
+
+jobs:
+  netlify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2.4.1
+        with:
+          node-version: '14'
+          cache: 'npm'
+      - run: npm ci
+      - run: ${{inputs.build_command}}
+      - name: Deploy to Netlify
+        uses: nwtgck/actions-netlify@v1.2
+        with:
+          publish-dir: './output/dist'
+          github-token: ${{ secrets.repoToken }}
+          deploy-message: "Deploy from GitHub Actions"
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.netlifyAuthToken }}
+          NETLIFY_SITE_ID: ${{ secrets.netlifySiteId }}

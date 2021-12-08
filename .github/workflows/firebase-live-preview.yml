@@ -1,0 +1,31 @@
+name: Firebase Live Deploy
+
+on:
+  workflow_call:
+    inputs:
+      projectId:
+        required: true
+        type: string
+    secrets:
+      repoToken:
+        required: true
+      firebaseServiceAccount:
+        required: true
+
+jobs:
+  firebase:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2.4.1
+        with:
+          node-version: '14'
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run build
+      - uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: "${{ secrets.repoToken }}"
+          firebaseServiceAccount: "${{ secrets.firebaseServiceAccount }}"
+          projectId: ${{inputs.projectId}}
+          channelId: live

@@ -1,0 +1,33 @@
+name: Lighthouse Preview
+
+on:
+  workflow_call:
+    inputs:
+      siteName:
+        required: true
+        type: string
+    secrets:
+      netlifyAuthToken:
+        required: true
+
+jobs:
+  lhci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions/setup-node@v1
+        with:
+          node-version: '14'
+          cache: 'npm'
+      - name: Waiting for 200 from the Netlify Preview
+        uses: kamranayub/wait-for-netlify-action@2.0.0
+        id: wait-for-netflify-preview
+        with:
+          siteName: "${{inputs.siteName}}"
+        env:
+          NETLIFY_TOKEN: ${{secrets.netlifyAuthToken}}
+      - name: Run Lighthouse on urls and validate with lighthouserc
+        uses: treosh/lighthouse-ci-action@v8
+        with:
+          urls: "${{ steps.wait-for-netflify-preview.outputs.url }}"
+          configPath: './lighthouserc.json'

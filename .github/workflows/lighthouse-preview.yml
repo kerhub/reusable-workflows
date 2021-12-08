@@ -23,7 +23,7 @@ jobs:
         uses: kamranayub/wait-for-netlify-action@2.0.0
         id: wait-for-netflify-preview
         with:
-          siteName: "${{inputs.siteName}}"
+          site_name: "${{inputs.siteName}}"
         env:
           NETLIFY_TOKEN: ${{secrets.netlifyAuthToken}}
       - name: Run Lighthouse on urls and validate with lighthouserc
